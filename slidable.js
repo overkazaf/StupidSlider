@@ -19,6 +19,7 @@
 				timer   : null,
 				currentIndex : 1, 
 				totalPages : 1,
+				ready : true,
 				init : function (){
 					var sld = this;
 					sld.prevBtn = $(opts.previousButton);
@@ -36,6 +37,7 @@
 				bindEvent : function (){
 					var sld = this;
 					sld.prevBtn.on('click', function (){
+						if (!sld.ready)return;
 						sld.currentIndex--;
 						if (sld.currentIndex <= 0){
 							sld.currentIndex = sld.totalPages;
@@ -43,16 +45,13 @@
 						sld.refresh();
 					});
 					sld.nextBtn.on('click', function (){
+						if (!sld.ready)return;
 						sld.currentIndex++;
 						if (sld.currentIndex > sld.totalPages){
 							sld.currentIndex = 1;
 						}
 						sld.refresh();
 					});
-
-					if (opts.autoPlay) {
-						sld.autoPlay();
-					}
 				},
 				autoPlay : function (){
 					var sld = this;
@@ -68,9 +67,12 @@
 				refresh : function (){
 					var sld = this;
 					var target = -(sld.currentIndex-1) * sld.width;
+					sld.ready = false;
 					movedItem.animate({
 						left : target + 'px'
-					}, 1000, 'swing');
+					}, 2000, 'swing', function (){
+						sld.ready = true;
+					});
 				}
 			};
 			Slider.init();
