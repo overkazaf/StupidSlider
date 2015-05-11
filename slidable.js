@@ -52,12 +52,22 @@
 						}
 						sld.refresh();
 					});
+
+					opts.autoPlay && sld.autoPlay();
 				},
 				autoPlay : function (){
 					var sld = this;
 					sld.timer = setInterval(function (){
 						sld.nextBtn.trigger('click');
 					}, opts.interval);
+
+					movedItem.on('mouseover', function (){
+						clearInterval(sld.timer);
+					}).on('mouseout', function (){
+						sld.timer = setInterval(function (){
+							sld.nextBtn.trigger('click');
+						}, opts.interval);
+					});
 				},
 				stop : function (){
 					var sld = this;
@@ -86,7 +96,7 @@
 		previousButton : '.prev',
 		nextButton 	   : '.next',
 		itemsPerPage   : 5,
-		autoPlay 	   : true,
+		autoPlay 	   : 1,
 		interval 	   : 3000
 	};
 })(jQuery);
