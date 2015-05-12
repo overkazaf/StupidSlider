@@ -4,13 +4,14 @@
 			v ? console.log(k, v) : console.log(k);
 		}
 	}
+	var sliderList = [];
 	$.fn.slidable = function (options){
 		var opts = $.extend({}, $.fn.defaults, options);
 		var context = $(opts.slider);
 		var movedItem = context.find(opts.movedItemClass);
 		var items = movedItem.children();
 		var itemList  = [];
-		this.each(function (i, cont){
+		return this.each(function (i, cont){
 			var Slider = {
 				prevBtn : null,
 				nextBtn : null,
@@ -30,8 +31,8 @@
 					$.each(items, function (){
 						itemList.push(this);
 					})
-
-					sld.totalPages = Math.ceil(itemList.length / opts.itemsPerPage);
+					var t = itemList.length % opts.itemsPerPage == 0 ? itemList.length / opts.itemsPerPage : Math.ceil(itemList.length / opts.itemsPerPageF) + 1;
+					sld.totalPages = itemList.length < opts.itemsPerPage ? itemList.length : t;
 					this.bindEvent();
 				}, 
 				bindEvent : function (){
@@ -57,16 +58,18 @@
 				},
 				autoPlay : function (){
 					var sld = this;
-					sld.timer = setInterval(function (){
-						sld.nextBtn.trigger('click');
-					}, opts.interval);
+					var fn = function (el, op){
+						el.timer = setInterval(function (){
+							el.nextBtn.trigger('click');
+						}, op.interval);
+					};
+
+					fn(sld, opts);
 
 					movedItem.on('mouseover', function (){
 						clearInterval(sld.timer);
 					}).on('mouseout', function (){
-						sld.timer = setInterval(function (){
-							sld.nextBtn.trigger('click');
-						}, opts.interval);
+						fn(sld, opts);
 					});
 				},
 				stop : function (){
@@ -80,14 +83,15 @@
 					sld.ready = false;
 					movedItem.animate({
 						left : target + 'px'
-					}, 2000, 'swing', function (){
+					}, opts.switchSpeed, 'swing', function (){
 						sld.ready = true;
 					});
 				}
 			};
 			Slider.init();
+
+			sliderList.push(Slider);
 		});
-		return this;
 	};
 
 	$.fn.defaults = {
@@ -96,6 +100,9 @@
 		previousButton : '.prev',
 		nextButton 	   : '.next',
 		itemsPerPage   : 5,
+		switchSpeed    : 1000,
+		hasSmallButton : !1,
+		sButtonClass   : '.page-btn',
 		autoPlay 	   : 1,
 		interval 	   : 3000
 	};
